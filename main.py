@@ -14,4 +14,5 @@ def index():
 @socketio.on("save_file")
 def create_file(data):
     socketio.emit("stream", data)
+    socketio.sleep(5)
     
