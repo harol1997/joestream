@@ -1,4 +1,3 @@
-import os
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 
@@ -15,5 +14,4 @@ def index():
 @socketio.on("save_file")
 def create_file(data):
     socketio.emit("stream", data)
-    socketio.sleep(10)
     
