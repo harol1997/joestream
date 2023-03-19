@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title>My video</title>
+  </head>
+  <style>
+    .mostrar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .ocultar {
+      display: none;
+    }
+  </style>
+  <body>
+    <div id="contenido">
+      <p>I'ts My video Streaming using files</p>
+      <img id="imagen" width="300" height="300" />
+    </div>
+    <div id="mensaje" class="ocultar">Cargando....</div>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+    ></script>
+    <script type="text/javascript">
+      // public method for encoding an Uint8Array to base64
+      function encode(input) {
+        var keyStr =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+        var output = "";
+        var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+        var i = 0;
+
+        while (i < input.length) {
+          chr1 = input[i++];
+          chr2 = i < input.length ? input[i++] : Number.NaN; // Not sure if the index
+          chr3 = i < input.length ? input[i++] : Number.NaN; // checks are needed here
+
+          enc1 = chr1 >> 2;
+          enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+          enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+          enc4 = chr3 & 63;
+
+          if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+          } else if (isNaN(chr3)) {
+            enc4 = 64;
+          }
+          output +=
+            keyStr.charAt(enc1) +
+            keyStr.charAt(enc2) +
+            keyStr.charAt(enc3) +
+            keyStr.charAt(enc4);
+        }
+        return output;
+      }
+
+      const imagen = document.getElementById("imagen");
+      const mensaje = document.getElementById("mensaje");
+      const contenido = document.getElementById("contenido");
+      const socket = io();
+      socket.on("connect", () => {
+        socket.emit("user_connected", { data: "Im connected" });
+        mensaje.classList.remove("mostrar");
+        mensaje.classList.add("ocultar");
+        contenido.classList.remove("ocultar");
+      });
+      socket.on("stream", (data) => {
+        const bytes = new Uint8Array(data.image);
+        imagen.src = "data:image/png;base64," + encode(bytes);
+      });
+      socket.on("disconnect", () => {
+        mensaje.classList.remove("ocultar");
+        mensaje.classList.add("mostrar");
+        contenido.classList.add("ocultar");
+      });
+      const video = document.getElementById("imagen");
+    </script>
+  </body>
+</html>
